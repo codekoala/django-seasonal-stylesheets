@@ -1,0 +1,84 @@
+django-seasonal-stylesheets is a goofy little project that I started as a result of a discussion I had with some co-workers.  We were talking about making our organization's website change the way it looked depending on what time of year it was.  That night I couldn't sleep because of my allergies, so I decided to see what I could do in a short amount of time to make our discussion a possibility (though it will never become a reality).
+
+By the morning I had a pretty functional application that would change the color of various elements on the page based on the date.  It does this using CSS.  I'm not sure that this application will ever become overly popular, but I'm hoping that someone a little more creative than me will figure out a way to make it useful.
+
+Basically, all you do is create a stylesheet that can have any number of seasons associated with it.  Each season can have an unlimited number of variable colors associated with it, but you should have the same variables defined in each season for a particular stylesheet.  Depending on the day of the year, the application selects the most recently past season and the soonest to come season.  It then determines how to transition each variable color from the past season to the coming season.  Sometimes you can get some pretty funky color combinations, but you can always add a new season in between to mitigate the funkiness.
+
+==Requirements==
+
+This project was built with and requires at least Django 1.0 (though you could probably get away with any of the SVN versions since mid-July 2008).
+
+==Installation==
+
+Download `django-seasonal-stylesheets` using *one* of the following methods:
+
+===Checkout from Subversion===
+
+{{{
+svn co http://django-seasonal-stylesheets.googlecode.com/svn/trunk/ django-seasonal-stylesheets
+}}}
+
+===Package Download===
+
+Download the latest `.tar.gz` file from the downloads section and extract it somewhere you'll remember.  After extraction, execute the following command:
+
+{{{
+python setup.py install
+}}}
+
+==Configuration==
+
+First of all, you must add this project to your list of `INSTALLED_APPS` in `settings.py`:
+
+{{{
+INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    ...
+    'dsss',
+    ...
+)
+}}}
+
+Run `manage.py syncdb`.  This creates a few tables in your database that are necessary for operation.
+
+Currently, the only option for this application is `DSSS_SAVE`.  This setting allows you to specify whether or not you want the stylesheets to be saved to the filesystem for faster retrieval in the future.  Default: True
+
+Next, you must include the URLconf for this project somewhere.  You can put a line like the following in your root `urls.py`:
+
+{{{
+    (r'^seasonal/', include('dsss.urls')),
+}}}
+
+==Usage==
+
+All you really need to do is modify your templates to include a link to the special stylesheet.  Assuming I have a stylesheet with the slug `sample`, I could do this:
+
+{{{
+<link rel="stylesheet" type="text/css" href="/seasonal/sample-{% now "Y-m-d" %}.css" />
+}}}
+
+By default, the application looks in `[template directory]/dsss/[slug].css` for the template of a particular stylesheet.  You may override the template location if you so desire, but it should be somewhere in your template directories (as defined in your `settings.py` file).
+
+A sample template follows:
+
+{{{
+body {
+    background-color: {{ background }};
+}
+
+h1 {
+    color: {{ header1 }};
+}
+
+h2 {
+    color: {{ header2 }};
+}
+}}}
+
+This template assumes that my stylesheet has 3 variables: `background`, `header1`, and `header2`.  These are the names of the variables setup in the admin interface.
+
+Good luck!  Please contact me with any questions or concerns you have with the project!
